@@ -31,16 +31,6 @@ export default async function crawl() {
     const page = await browser.newPage();
 
     /*
-     * 에러 디버깅을 위한 이벤트 핸들러 등록
-     */
-    // page.on("requestfailed", (request) => {
-    //     console.log(`url: ${request.url()}, errText: ${request.failure().errorText}, method: ${request.method()}`);
-    // });
-    // page.on("pageerror", (err) => {
-    //     console.log(`Page error: ${err.toString()}`);
-    // });
-
-    /*
      * 그룹 문제집 페이지로 리다이렉트 되는 로그인 페이지로 이동
      * 로그인 정보 입력 후 로그인
      */
