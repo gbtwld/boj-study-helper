@@ -1,0 +1,19 @@
+{
+    "name": "boj-study-helper",
+    "version": "1.0.0",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "@notionhq/client": "^2.2.15",
+        "axios": "^1.6.8",
+        "cheerio": "^1.0.0-rc.12",
+        "dotenv": "^16.4.5",
+        "puppeteer": "^22.8.0"
+    }
+}
