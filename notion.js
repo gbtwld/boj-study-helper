@@ -2,6 +2,9 @@ import { Client } from "@notionhq/client";
 import { configDotenv } from "dotenv";
 import fs from "fs";
 
+/*
+ * 레벨 Alias
+ */
 const level = {
     0: "Unrated / Not Ratable",
     1: "Bronze V",
@@ -36,25 +39,33 @@ const level = {
     30: "Ruby I",
 };
 
+/*
+ * 노션 객체 생성 및 데이터베이스 ID 저장
+ */
 const notion = new Client({
     auth: configDotenv().parsed.NOTION_SECRET,
 });
 const week_database_id = configDotenv().parsed.NOTION_DATABASE_ID;
 const problem_database_id = configDotenv().parsed.NOTION_PROBLEM_DATABASE_ID;
 
+/*
+ * 데이터베이스에 문제 추가하는 함수
+ */
 async function pushProblemData(workbook) {
-    // const { results } = await notion.databases.query({
-    //     database_id: problem_database_id,
-    // });
-
     /*
      * 역순으로 돌려야 노션에 추가할 때 순서대로 추가됨
      */
     for (const problem of workbook.problems.reverse()) {
         console.log(problem.problemId + "번 문제 추가중...");
+        /*
+         * 노션 추가용 문제 태그 객체 생성
+         */
         const tags = problem.tags.map((tag) => {
             return { name: tag.displayNames[0].name };
         });
+        /*
+         * 노션에 문제 추가 및 문제 내용 입력
+         */
         const res = await notion.pages.create({
             parent: { database_id: problem_database_id },
             properties: {
@@ -252,6 +263,11 @@ async function pushProblemData(workbook) {
     }
 }
 
+/*
+ * 노션에 각 주차 페이지 속 내용 추가하는 함수
+ * 표 보기는 추가가 불가능해서 북마크만 추가
+ * 표 보기는 직접 페이지 들어가서 추가해야함
+ */
 async function createWorkbookPageBlock(pageID, workbook) {
     await notion.blocks.children.append({
         block_id: pageID,
@@ -263,6 +279,9 @@ async function createWorkbookPageBlock(pageID, workbook) {
     });
 }
 
+/*
+ * 노션에 각 주차 페이지 생성하는 함수
+ */
 async function createWorkbookPage(workbook) {
     const createdPage = await notion.pages.create({
         parent: { database_id: week_database_id },
@@ -295,10 +314,17 @@ async function createWorkbookPage(workbook) {
         },
     });
 
+    /*
+     * 생성된 페이지의 id를 통해 페이지 내용 추가 함수 호출
+     */
     createWorkbookPageBlock(createdPage.id, workbook);
 }
 
 export default async function notionJob() {
+    /*
+     * 크롤링한 데이터를 불러와 노션의 데이터와 비교 후
+     * 노션에 없는 데이터만 추가
+     */
     const data = JSON.parse(fs.readFileSync("./workbookData.json", "utf8"));
     const { results } = await notion.databases.query({
         database_id: week_database_id,
